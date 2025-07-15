@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CS Major & Minor Overlap Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+      background: #f0f2f5;
+    }
+
+    h1, h2 {
+      color: #2c3e50;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .courses-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .tile {
+      padding: 10px 14px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+      font-weight: 600;
+      cursor: default;
+      transition: all 0.3s;
+    }
+
+    .major {
+      background: #1565c0;
+      color: white;
+      border-color: #0d47a1;
+    }
+
+    .minor-section {
+      margin-top: 20px;
+      padding: 10px;
+      border-left: 6px solid #ccc;
+      background: #fff;
+    }
+
+    .minor-Business {
+      border-color: #fb8c00;
+    }
+    .minor-Statistics {
+      border-color: #2e7d32;
+    }
+    .minor-Math {
+      border-color: #6a1b9a;
+    }
+    .minor-Robotics {
+      border-color: #c62828;
+    }
+    .minor-Computational {
+      border-color: #283593;
+    }
+
+    .overlap {
+      background-color: #fff3e0;
+      color: black;
+      cursor: pointer;
+    }
+
+    .selected {
+      background-color: #1b5e20 !important;
+      color: white !important;
+      border-color: #1b5e20 !important;
+      box-shadow: 0 0 10px #1b5e20;
+    }
+
+    #allowedList {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #1b5e20;
+    }
+
+    label {
+      font-size: 1.1em;
+      display: inline-block;
+      margin: 6px 10px;
+      padding: 8px 14px;
+      background-color: #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    label:hover {
+      background-color: #cfcfcf;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    label[for*="Business"] {
+      border-left: 6px solid #fb8c00;
+    }
+    label[for*="Statistics"] {
+      border-left: 6px solid #2e7d32;
+    }
+    label[for*="Math"] {
+      border-left: 6px solid #6a1b9a;
+    }
+    label[for*="Robotics"] {
+      border-left: 6px solid #c62828;
+    }
+    label[for*="Computational"] {
+      border-left: 6px solid #283593;
+    }
+  </style>
+</head>
+<body>
+<h1>CS Major and Minor Course Overlap Visualizer</h1>
+<p>Select your minor(s):</p>
+<div id="minorCheckboxes">
+  <label for="Business"><input type="checkbox" value="Business Analytics" id="Business" /> Business Analytics</label>
+  <label for="Statistics"><input type="checkbox" value="Statistics" id="Statistics" /> Statistics</label>
+  <label for="Math"><input type="checkbox" value="Math" id="Math" /> Math</label>
+  <label for="Robotics"><input type="checkbox" value="Robotics" id="Robotics" /> Robotics</label>
+  <label for="Computational"><input type="checkbox" value="Computational Finance" id="Computational" /> Computational Finance</label>
+</div>
+
+<div class="section">
+  <h2>CS Major Courses</h2>
+  <div id="majorCourses" class="courses-list"></div>
+</div>
+
+<div id="minorsSection"></div>
+<div id="allowedList"></div>
+
+<script>
+const csMajorCourses = ["CMSC131", "CMSC132", "CMSC216", "CMSC250", "CMSC330", "CMSC351", "CMSC320", "CMSC422", "CMSC426"];
+const minors = {
+  "Business Analytics": ["CMSC132", "CMSC320", "CMSC422", "CMSC424", "BMGT402", "BMGT430"],
+  "Statistics": ["STAT400", "STAT401", "CMSC320", "STAT430"],
+  "Math": ["MATH140", "MATH141", "STAT410", "CMSC250"],
+  "Robotics": ["CMSC422", "CMSC426", "CMSC330", "ENME441"],
+  "Computational Finance": ["CMSC320", "STAT400", "BMGT402", "MATH241"]
+};
+
+let selectedOverlaps = [];
+
+function renderTile(course, isOverlap = false) {
+  const tile = document.createElement("div");
+  tile.className = "tile";
+  tile.textContent = course;
+  if (csMajorCourses.includes(course)) tile.classList.add("major");
+  if (isOverlap) {
+    tile.classList.add("overlap");
+    tile.onclick = () => toggleSelection(course, tile);
+  }
+  return tile;
+}
+
+function toggleSelection(course, tile) {
+  const idx = selectedOverlaps.indexOf(course);
+  if (idx !== -1) {
+    selectedOverlaps.splice(idx, 1);
+    tile.classList.remove("selected");
+  } else {
+    if (selectedOverlaps.length >= 2) {
+      alert("Only 2 overlaps allowed.");
+      return;
+    }
+    selectedOverlaps.push(course);
+    tile.classList.add("selected");
+  }
+  updateAllowedList();
+}
+
+function updateAllowedList() {
+  const div = document.getElementById("allowedList");
+  if (selectedOverlaps.length === 0) div.textContent = "";
+  else div.textContent = `Allowed overlaps selected: ${selectedOverlaps.join(", ")}`;
+}
+
+function updateView() {
+  document.getElementById("majorCourses").innerHTML = "";
+  document.getElementById("minorsSection").innerHTML = "";
+  selectedOverlaps = [];
+  updateAllowedList();
+
+  csMajorCourses.forEach(course => {
+    document.getElementById("majorCourses").appendChild(renderTile(course));
+  });
+
+  const checkedMinors = Array.from(document.querySelectorAll("#minorCheckboxes input[type=checkbox]:checked")).map(c => c.value);
+
+  checkedMinors.forEach(minor => {
+    const section = document.createElement("div");
+    section.className = `minor-section minor-${minor.split(" ")[0]}`;
+    section.innerHTML = `<h2>${minor} Minor</h2>`;
+
+    const list = document.createElement("div");
+    list.className = "courses-list";
+    minors[minor].forEach(course => {
+      const isOverlap = csMajorCourses.includes(course);
+      list.appendChild(renderTile(course, isOverlap));
+    });
+
+    section.appendChild(list);
+    document.getElementById("minorsSection").appendChild(section);
+  });
+}
+
+// Event Listeners
+Array.from(document.querySelectorAll("#minorCheckboxes input")).forEach(cb => cb.addEventListener("change", updateView));
+
+// Initial load
+updateView();
+</script>
+</body>
+</html>
+
+
+
+
+
+
