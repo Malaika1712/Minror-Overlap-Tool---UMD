@@ -1,0 +1,37 @@
+<div id="track-content" data-track="machinelearning">
+  <h3>Machine Learning Track Courses</h3>
+  <p><strong>Requirements:</strong></p>
+  <ul>
+    <li>Required (choose one): <strong>MATH 240 (4 credits)</strong> OR <strong>MATH 461</strong> OR <strong>MATH 341 (4 credits)</strong></li>
+    <li>Required: <strong>CMSC 320, CMSC 421, CMSC 422</strong></li>
+    <li>Choose two from: CMSC 426, CMSC/AMSC 460, CMSC/AMSC 466, MATH 401, CMSC 470, CMSC 472, CMSC 473, CMSC 474</li>
+    <li>6 credits from CMSC 300-400 level courses (excluding CMSC 330 and CMSC 351)</li>
+  </ul>
+
+  <script>
+    window.currentTrackCourses = [
+      // Required Math (choose one)
+      { code: "MATH240", category: "Required", area: "Math Requirement", credits: 4 },
+      { code: "MATH461", category: "Required", area: "Math Requirement", credits: 4 },
+      { code: "MATH341", category: "Required", area: "Math Requirement", credits: 4 },
+
+      // Required CS courses
+      { code: "CMSC320", category: "Required", area: "CS Core", credits: 3 },
+      { code: "CMSC421", category: "Required", area: "CS Core", credits: 3 },
+      { code: "CMSC422", category: "Required", area: "CS Core", credits: 3 },
+
+      // Choose two from these
+      { code: "CMSC426", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+      { code: "CMSC460", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+      { code: "CMSC466", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+      { code: "MATH401", category: "Elective", area: "Math Elective", credits: 3 },
+      { code: "CMSC470", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+      { code: "CMSC472", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+      { code: "CMSC473", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+      { code: "CMSC474", category: "Elective", area: "Machine Learning Elective", credits: 3 },
+
+      // 6 credits from 300-400 level (excluding 330 and 351)
+      // These could be any other 300-400 CMSC courses, assumed handled elsewhere
+    ];
+  </script>
+</div>
