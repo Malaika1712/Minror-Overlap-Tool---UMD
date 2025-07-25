@@ -1,417 +1,560 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Track-Minor Overlap & ULC Checker</title>
-  <style>
-    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
-    .red { background-color: #ffcccc; }
-    .yellow { background-color: #fffacc; }
-    .green { background-color: #ccffcc; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UMD Computer Science Degree Audit Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e21833, #d50032);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .track-selector {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .track-selector h2 {
+            color: #e21833;
+            margin-bottom: 1rem;
+        }
+
+        .track-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .track-btn {
+            padding: 1rem;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .track-btn:hover {
+            border-color: #e21833;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(226, 24, 51, 0.2);
+        }
+
+        .track-btn.active {
+            background: #e21833;
+            color: white;
+            border-color: #e21833;
+        }
+
+        .requirements-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .requirements-section.active {
+            display: block;
+        }
+
+        .requirement-group {
+            margin-bottom: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .requirement-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .requirement-header:hover {
+            background: #e9ecef;
+        }
+
+        .requirement-header h3 {
+            color: #e21833;
+            margin: 0;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-fulfilled {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unfulfilled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .requirement-content {
+            padding: 1rem;
+            display: none;
+        }
+
+        .requirement-content.expanded {
+            display: block;
+        }
+
+        .sub-requirement {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #e21833;
+        }
+
+        .sub-requirement h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .needs-info {
+            background: #fff3cd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            font-weight: bold;
+        }
+
+        .course-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .course-tag {
+            background: #e21833;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 0.3s ease;
+        }
+
+        .notes {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .notes h4 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>UMD Computer Science Degree Audit Checker</h1>
+            <p>Track your progress through specialized tracks and requirements</p>
+        </div>
 
-  <h2>Track Selection</h2>
-  <select id="trackSelect">
-    <option value="">-- Select a Track --</option>
-    <option value="general">General Track</option>
-    <option value="cybersecurity">Cybersecurity</option>
-    <option value="machinelearning">Machine Learning</option>
-    <option value="quantum">Quantum</option>
-    <option value="datascience">Data Science</option>
-  </select>
+        <div class="track-selector">
+            <h2>Select Your Track</h2>
+            <div class="track-buttons">
+                <button class="track-btn active" data-track="cybersecurity">
+                    Cybersecurity
+                </button>
+                <button class="track-btn" data-track="general">
+                    General Track
+                </button>
+                <button class="track-btn" data-track="ml">
+                    Machine Learning
+                </button>
+                <button class="track-btn" data-track="quantum">
+                    Quantum Computing
+                </button>
+                <button class="track-btn" data-track="datascience">
+                    Data Science
+                </button>
+            </div>
+        </div>
 
-  <h2>Select Minors</h2>
-  <label><input type="checkbox" name="minor" value="math"> Math</label>
-  <label><input type="checkbox" name="minor" value="robotics"> Robotics</label>
-  <label><input type="checkbox" name="minor" value="statistics"> Statistics</label>
-  <label><input type="checkbox" name="minor" value="qse"> QSE</label>
-  <label><input type="checkbox" name="minor" value="computationalFinance"> Computational Finance</label>
-  <label><input type="checkbox" name="minor" value="businessAnalytics"> Business Analytics</label>
+        <!-- Cybersecurity Track Requirements -->
+        <div id="cybersecurity-requirements" class="requirements-section active">
+            <h2>Cybersecurity Track Requirements</h2>
+            
+            <!-- Upper Level Concentration -->
+            <div class="requirement-group">
+                <div class="requirement-header" onclick="toggleRequirement('ulc')">
+                    <h3>Upper Level Concentration</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="status-badge status-unfulfilled">Unfulfilled</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                </div>
+                <div class="requirement-content" id="ulc-content">
+                    <div class="sub-requirement">
+                        <h4>Complete 12 credits at the 300-400 level in an area outside of CMSC</h4>
+                        <div class="needs-info">
+                            NEEDS: 12.0 CREDITS | 1.700 GPA
+                        </div>
+                        <p><strong>Note:</strong> Chosen in consultation with your CMSC advisor. No course cross-listed with CMSC may be used.</p>
+                        <p><em>The Upper Level Concentration area does not auto populate. Your assigned advisor will need to manually move your ULC-eligible courses to this area during degree audit checks.</em></p>
+                    </div>
+                </div>
+            </div>
 
-  <br><br>
-  <button id="checkOverlapBtn">Check Overlap and ULC Validation</button>
+            <!-- Lower Level Requirements -->
+            <div class="requirement-group">
+                <div class="requirement-header" onclick="toggleRequirement('lower')">
+                    <h3>Lower Level Requirements</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="status-badge status-unfulfilled">Unfulfilled</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                </div>
+                <div class="requirement-content" id="lower-content">
+                    <div class="sub-requirement">
+                        <h4>Math Requirement</h4>
+                        <div class="needs-info">
+                            NEEDS: 2 COURSES
+                        </div>
+                        <p>SELECT FROM:</p>
+                        <div class="course-list">
+                            <span class="course-tag">MATH 140</span>
+                            <span class="course-tag">MATH 141</span>
+                        </div>
+                    </div>
 
-  <h2>Results</h2>
-  <table id="overlapTable">
-    <thead>
-      <tr>
-        <th>Course</th>
-        <th>Overlaps With</th>
-        <th>Area</th>
-        <th>Minor</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+                    <div class="sub-requirement">
+                        <h4>Computer Science Courses</h4>
+                        <div class="needs-info">
+                            NEEDS: 6 COURSES
+                        </div>
+                        <p>SELECT FROM:</p>
+                        <div class="course-list">
+                            <span class="course-tag">CMSC 131 OR 133</span>
+                            <span class="course-tag">CMSC 132</span>
+                            <span class="course-tag">CMSC 216</span>
+                            <span class="course-tag">CMSC 250</span>
+                            <span class="course-tag">CMSC 330</span>
+                            <span class="course-tag">CMSC 351</span>
+                        </div>
+                    </div>
 
-  <div id="ulcValidation" style="margin-top:20px; font-weight:bold;"></div>
+                    <div class="sub-requirement">
+                        <h4>STAT4XX with a MATH141 prerequisite</h4>
+                        <div class="needs-info">
+                            NEEDS: 1 COURSE
+                        </div>
+                        <p>SELECT FROM:</p>
+                        <div class="course-list">
+                            <span class="course-tag">STAT 400</span>
+                            <span class="course-tag">STAT 401</span>
+                            <span class="course-tag">STAT 405</span>
+                            <span class="course-tag">STAT 410</span>
+                            <span class="course-tag">STAT 411</span>
+                            <span class="course-tag">STAT 420</span>
+                            <span class="course-tag">STAT 430</span>
+                            <span class="course-tag">STAT 440</span>
+                            <span class="course-tag">STAT 450</span>
+                            <span class="course-tag">STAT 470</span>
+                        </div>
+                    </div>
 
-  <script>
-    // Track requirements (simplified example, replace with your official lists)
-    const trackRequirements = {
-      general: {
-        required: ["CMSC131", "CMSC132"],
-        areas: { Electives: ["CMSC216", "CMSC250"] }
-      },
-      cybersecurity: {
-        required: ["CMSC351", "CMSC330", "CMSC414"],
-        choose4from: ["CMSC421", "CMSC424", "CMSC427"]
-      },
-      machinelearning: {
-        required: ["CMSC320", "CMSC421", "CMSC422"],
-        chooseTwoFrom: ["CMSC426", "CMSC460", "AMSC460", "CMSC466", "AMSC466", "MATH401",
-          "CMSC470", "CMSC472", "CMSC473", "CMSC474", "CMSC476"]
-      },
-      quantum: {
-        required: ["CMSC457", "PHYS467"],
-        areas: {
-          Area1: ["CMSC411", "CMSC412", "CMSC414", "CMSC416", "CMSC417"],
-          Area2: ["CMSC420", "CMSC421", "CMSC422", "CMSC423", "CMSC424", "CMSC426", "CMSC427", "CMSC470", "CMSC471", "CMSC472"],
-          Area3: ["CMSC430", "CMSC433", "CMSC434", "CMSC435", "CMSC436", "CMSC471"],
-          Area4: ["CMSC451", "CMSC452", "CMSC454", "CMSC456", "CMSC457", "CMSC474", "MATH456"],
-          Area5: ["CMSC460", "CMSC466", "AMSC460", "AMSC466"]
-        },
-        electives: ["CMSC300", "CMSC400", "CMSC410"]
-      },
-      datascience: {
-        required: ["DATA110", "DATA120", "DATA200", "DATA250", "DATA320", "DATA350", "DATA400"],
-        chooseOneFrom1: ["DATA300", "DATA310"],
-        chooseOneFrom2: ["DATA330", "DATA340"],
-        chooseTwoFrom3: ["DATA360", "DATA370", "DATA380"]
-      }
-    };
+                    <div class="sub-requirement">
+                        <h4>MATH Requirements</h4>
+                        <div class="needs-info">
+                            NEEDS: 1 COURSE
+                        </div>
+                        <p>These courses must have prerequisite of MATH141 or higher; cannot be cross-listed with CMSC.</p>
+                        <p>SELECT FROM:</p>
+                        <div class="course-list">
+                            <span class="course-tag">MATH 240</span>
+                            <span class="course-tag">MATH 241</span>
+                            <span class="course-tag">MATH 246</span>
+                            <span class="course-tag">MATH 310</span>
+                            <span class="course-tag">MATH 340</span>
+                            <span class="course-tag">MATH 341</span>
+                            <span class="course-tag">STAT 401</span>
+                            <span class="course-tag">STAT 405</span>
+                            <span class="course-tag">STAT 410</span>
+                            <span class="course-tag">STAT 411</span>
+                            <span class="course-tag">STAT 420</span>
+                            <span class="course-tag">STAT 430</span>
+                            <span class="course-tag">STAT 440</span>
+                            <span class="course-tag">STAT 450</span>
+                            <span class="course-tag">STAT 470</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    // Minors (simplified, replace with your official minor lists)
-    const minors = {
-      math: [
-        { name: "Core", code: ["MATH140", "MATH141"] },
-        { name: "Electives", code: ["CMSC250"] }
-      ],
-      robotics: [
-        { name: "Core", code: ["ENME480", "ENAE450", "ENEE467", "CMSC477"] },
-        { name: "Math", code: ["MATH240", "MATH461"] }
-      ],
-      statistics: [
-        { name: "Core", code: ["MATH241", "MATH340"] },
-        { name: "Pairs", code: [["STAT400", "STAT401"], ["STAT410", "STAT420"], ["STAT410", "STAT401"]] },
-        { name: "Electives", code: ["STAT430", "STAT422", "STAT426", "STAT440", "STAT470", "MATH424"] }
-      ],
-      qse: [
-        { name: "Math", code: ["MATH240", "MATH461", "ENEE290", "PHYS274", "MATH243", "MATH341"] },
-        { name: "IntroQuantum", code: ["ENEE491", "PHYS401", "ENMA434", "PHYS360"] },
-        { name: "Core", code: ["PHYS467", "ENEE492", "ENMA436", "ENME434", "PHYS457", "CMSC457"] },
-        { name: "Lab", code: ["ENEE493", "CMSC437"] },
-        { name: "Elective", code: ["ENEE489C", "ENEE489W", "ENMA481"] }
-      ],
-      computationalFinance: [
-        { name: "Core", code: ["BUFN400", "CMSC320", "BUFN403"] },
-        { name: "Elective", code: ["BUFN401", "BUFN402", "CMSC421", "CMSC422", "CMSC470", "CMSC471", "CMSC472", "CMSC474"] }
-      ],
-      businessAnalytics: [
-        { name: "Core", code: ["BMGT402", "BMGT430", "BMGT431"] },
-        { name: "ElectivesA", code: ["BMGT302", "BMGT332", "BMGT385", "BMGT400", "BMGT401", "BMGT404"] },
-        { name: "ElectivesB", code: ["BMGT347", "BMGT394", "BMGT447", "BMGT484", "CMSC422", "ECON414", "ENCE402", "ENEE436", "INST414", "STAT430"] }
-      ]
-    };
+            <!-- Cybersecurity Specialization Requirements -->
+            <div class="requirement-group">
+                <div class="requirement-header" onclick="toggleRequirement('cyber-spec')">
+                    <h3>Cybersecurity Specialization Requirements</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="status-badge status-unfulfilled">Unfulfilled</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                </div>
+                <div class="requirement-content" id="cyber-spec-content">
+                    <div class="sub-requirement">
+                        <h4>Complete CMSC414 & CMSC456</h4>
+                        <div class="needs-info">
+                            NEEDS: 2 COURSES
+                        </div>
+                        <p>SELECT FROM:</p>
+                        <div class="course-list">
+                            <span class="course-tag">CMSC 414</span>
+                            <span class="course-tag">CMSC 456</span>
+                        </div>
+                    </div>
 
-    // Restricted ULC courses as a Set for quick lookup
-    const restrictedULCCourses = new Set([
-      "AMSC460", "AMSC466",
-      "AOSC447",
-      "AREC380",
-      "BIOE442",
-      "BSCI411",
-      "BMGT300", "BMGT301", "BMGT301F", "BMGT302", "BMGT302F", "BMGT400", "BMGT402", "BMGT403", "BMGT404", "BMGT408E", "BMGT408C", "BMGT431", "BMGT408V",
-      "CPSP", // All CPSP Scholars disallowed
-      "DATA320", "DATA400",
-      "ECON414", "ECON433",
-      "ENEE350", "ENEE426", "ENEE436", "ENEE446", "ENEE447", "ENEE457",
-      "ENGL381",
-      "GEOG376", "GEOG371", "GEOG461", "GEOG476", "GEOG470", "GEOG498I",
-      "HONR", "HNUH",
-      "IMDM327", "IMDM390", "IMDM498I",
-      "INST", // All INST except exceptions not allowed
-      "MATH456", "MATH461", "MATH475",
-      "PHIL408F",
-      "PHPE408J",
-      "PHYS457", "PHYS474", "PHYS476", "PHYS486",
-      "PSYC417",
-      "ENAE450", "ENEE467", "ENEE408I", "CMSC477",
-      "STAT426", "STAT464"
-      // Add others as needed. For partial course numbers, more sophisticated matching is needed.
-    ]);
+                    <div class="sub-requirement">
+                        <h4>Complete four courses from below</h4>
+                        <div class="needs-info">
+                            NEEDS: 4 COURSES
+                        </div>
+                        <p>SELECT FROM:</p>
+                        <div class="course-list">
+                            <span class="course-tag">CMSC 411</span>
+                            <span class="course-tag">CMSC 412</span>
+                            <span class="course-tag">CMSC 417</span>
+                            <span class="course-tag">CMSC 430</span>
+                            <span class="course-tag">CMSC 433</span>
+                            <span class="course-tag">CMSC 451</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    // Helper to check if a course is restricted ULC
-    function isRestrictedULC(course) {
-      // Exact match or prefix match for categories like CPSP, HONR, INST, etc.
-      if (restrictedULCCourses.has(course)) return true;
+            <!-- CMSC Electives -->
+            <div class="requirement-group">
+                <div class="requirement-header" onclick="toggleRequirement('cmsc-electives')">
+                    <h3>CMSC Electives</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="status-badge status-unfulfilled">Unfulfilled</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                </div>
+                <div class="requirement-content" id="cmsc-electives-content">
+                    <div class="sub-requirement">
+                        <h4>3 Credits at the CMSC300/400 Level</h4>
+                        <div class="needs-info">
+                            NEEDS: 3.0 CREDITS
+                        </div>
+                        <p><strong>Not eligible:</strong> CMSC330, CMSC351</p>
+                        <p>Any 300-400 level CMSC course except the excluded ones above.</p>
+                    </div>
+                </div>
+            </div>
 
-      // Handle prefix cases:
-      const prefixes = ["CPSP", "HONR", "HNUH", "INST"];
-      for (const prefix of prefixes) {
-        if (course.startsWith(prefix)) return true;
-      }
+            <div class="notes">
+                <h4>Important Notes for Cybersecurity Track:</h4>
+                <ul>
+                    <li>Upper Level Concentration must be chosen in consultation with your CMSC advisor</li>
+                    <li>No cross-listed CMSC courses can be used for the ULC requirement</li>
+                    <li>MATH requirements must have MATH141 or higher as prerequisite</li>
+                    <li>Your advisor will manually move ULC-eligible courses during degree audit checks</li>
+                </ul>
+            </div>
+        </div>
 
-      // Also handle BMGT partial course codes explicitly
-      if (course.startsWith("BMGT")) {
-        const numberPart = course.slice(4);
-        // For example, BMGT300, BMGT301, BMGT301F, BMGT302, BMGT302F, BMGT400, BMGT402, BMGT403, BMGT404, BMGT408E, BMGT408C, BMGT431, BMGT408V
-        // Already included explicitly, so safe to just check for presence in set
-        return restrictedULCCourses.has(course);
-      }
+        <!-- Placeholder for other tracks -->
+        <div id="general-requirements" class="requirements-section">
+            <h2>General Track Requirements</h2>
+            <p>Requirements for General Track will be added when you provide them.</p>
+        </div>
 
-      return false;
-    }
+        <div id="ml-requirements" class="requirements-section">
+            <h2>Machine Learning Track Requirements</h2>
+            <p>Requirements for Machine Learning Track will be added when you provide them.</p>
+        </div>
 
-    // Helper: flatten minor courses to single array of courses
-    function getMinorCourses(selectedMinors) {
-      let minorCourses = [];
-      selectedMinors.forEach(minorKey => {
-        if (!minors[minorKey]) return;
-        minors[minorKey].forEach(group => {
-          if (Array.isArray(group.code[0])) {
-            // Group of pairs or arrays, flatten all
-            minorCourses = minorCourses.concat(group.code.flat());
-          } else {
-            minorCourses = minorCourses.concat(group.code);
-          }
+        <div id="quantum-requirements" class="requirements-section">
+            <h2>Quantum Computing Track Requirements</h2>
+            <p>Requirements for Quantum Computing Track will be added when you provide them.</p>
+        </div>
+
+        <div id="datascience-requirements" class="requirements-section">
+            <h2>Data Science Track Requirements</h2>
+            <p>Requirements for Data Science Track will be added when you provide them.</p>
+        </div>
+    </div>
+
+    <script>
+        // Track selection functionality
+        document.querySelectorAll('.track-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.track-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Hide all requirement sections
+                document.querySelectorAll('.requirements-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show selected track requirements
+                const trackId = this.dataset.track + '-requirements';
+                const trackSection = document.getElementById(trackId);
+                if (trackSection) {
+                    trackSection.classList.add('active');
+                }
+            });
         });
-      });
-      // Unique
-      return [...new Set(minorCourses)];
-    }
 
-    function getTrackAllCourses(trackKey) {
-      let courses = [];
-      const track = trackRequirements[trackKey];
-      if (!track) return [];
-
-      if (track.required) courses = courses.concat(track.required);
-
-      if (track.areas) {
-        Object.values(track.areas).forEach(areaList => {
-          courses = courses.concat(areaList);
-        });
-      }
-      if (track.choose4from) courses = courses.concat(track.choose4from);
-      if (track.chooseOneFrom1) courses = courses.concat(track.chooseOneFrom1);
-      if (track.chooseOneFrom2) courses = courses.concat(track.chooseOneFrom2);
-      if (track.chooseTwoFrom3) courses = courses.concat(track.chooseTwoFrom3);
-      if (track.chooseTwoFrom) courses = courses.concat(track.chooseTwoFrom);
-
-      return [...new Set(courses)];
-    }
-
-    function getCourseArea(trackKey, courseCode) {
-      const track = trackRequirements[trackKey];
-      if (!track) return "";
-
-      if (track.required && track.required.includes(courseCode)) return "Required";
-
-      if (track.areas) {
-        for (const [area, courseList] of Object.entries(track.areas)) {
-          if (courseList.includes(courseCode)) {
-            if (area.toLowerCase() === "electives") return "Elective";
-            return area.toUpperCase();
-          }
-        }
-      }
-
-      // Specific for tracks with other groupings
-      if (trackKey === "cybersecurity") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.choose4from && track.choose4from.includes(courseCode)) return "Choose 4 From";
-      }
-      if (trackKey === "datascience") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.chooseOneFrom1 && track.chooseOneFrom1.includes(courseCode)) return "Choose One From Group 1";
-        if (track.chooseOneFrom2 && track.chooseOneFrom2.includes(courseCode)) return "Choose One From Group 2";
-        if (track.chooseTwoFrom3 && track.chooseTwoFrom3.includes(courseCode)) return "Choose Two From Group 3";
-      }
-      if (trackKey === "machinelearning") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.chooseTwoFrom && track.chooseTwoFrom.includes(courseCode)) return "Choose Two From";
-      }
-      if (trackKey === "quantum") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.areas) {
-          for (const [area, courseList] of Object.entries(track.areas)) {
-            if (courseList.includes(courseCode)) {
-              if (area.toLowerCase() === "electives") return "Elective";
-              return area.toUpperCase();
+        // Toggle requirement sections
+        function toggleRequirement(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = content.previousElementSibling.querySelector('.expand-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('rotated');
             }
-          }
         }
-      }
-      return "";
-    }
 
-    function checkOverlaps(trackKey, selectedMinors) {
-      const trackCourses = getTrackAllCourses(trackKey);
-      const trackSet = new Set(trackCourses);
-      const requiredSet = new Set(trackRequirements[trackKey]?.required || []);
-      const electiveSet = new Set([...trackCourses].filter(c => !requiredSet.has(c)));
+        // Cybersecurity track data structure for future course tracking
+        const cybersecurityTrack = {
+            upperLevelConcentration: {
+                required: 12,
+                minGPA: 1.7,
+                completed: 0,
+                courses: []
+            },
+            lowerLevel: {
+                math: {
+                    required: 2,
+                    completed: 0,
+                    options: ['MATH 140', 'MATH 141'],
+                    selected: []
+                },
+                computerScience: {
+                    required: 6,
+                    completed: 0,
+                    options: ['CMSC 131 OR 133', 'CMSC 132', 'CMSC 216', 'CMSC 250', 'CMSC 330', 'CMSC 351'],
+                    selected: []
+                },
+                statistics: {
+                    required: 1,
+                    completed: 0,
+                    options: ['STAT 400', 'STAT 401', 'STAT 405', 'STAT 410', 'STAT 411', 'STAT 420', 'STAT 430', 'STAT 440', 'STAT 450', 'STAT 470'],
+                    selected: []
+                },
+                mathRequirements: {
+                    required: 1,
+                    completed: 0,
+                    options: ['MATH 240', 'MATH 241', 'MATH 246', 'MATH 310', 'MATH 340', 'MATH 341', 'STAT 401', 'STAT 405', 'STAT 410', 'STAT 411', 'STAT 420', 'STAT 430', 'STAT 440', 'STAT 450', 'STAT 470'],
+                    selected: []
+                }
+            },
+            cybersecuritySpecialization: {
+                core: {
+                    required: 2,
+                    completed: 0,
+                    options: ['CMSC 414', 'CMSC 456'],
+                    selected: []
+                },
+                electives: {
+                    required: 4,
+                    completed: 0,
+                    options: ['CMSC 411', 'CMSC 412', 'CMSC 417', 'CMSC 430', 'CMSC 433', 'CMSC 451'],
+                    selected: []
+                }
+            },
+            cmscElectives: {
+                required: 3,
+                completed: 0,
+                excluded: ['CMSC 330', 'CMSC 351'],
+                selected: []
+            }
+        };
 
-      let overlapEntries = [];
-      let minorCoursesMap = {};
-
-      // Map courses from minors to the minors they belong to
-      selectedMinors.forEach(minorKey => {
-        if (!minors[minorKey]) return;
-        minors[minorKey].forEach(group => {
-          let codes = Array.isArray(group.code[0]) ? group.code.flat() : group.code;
-          codes.forEach(course => {
-            if (!minorCoursesMap[course]) minorCoursesMap[course] = [];
-            minorCoursesMap[course].push(minorKey);
-          });
-        });
-      });
-
-      // Overlaps between track and minors
-      for (const [course, minorList] of Object.entries(minorCoursesMap)) {
-        if (trackSet.has(course)) {
-          overlapEntries.push({
-            course,
-            overlapsWith: "Track",
-            area: getCourseArea(trackKey, course),
-            minor: minorList.join(", "),
-            countOverlapMinors: minorList.length,
-            isInTrack: true,
-            isElective: electiveSet.has(course)
-          });
-        }
-        // Overlaps between minors - not allowed
-        if (minorList.length > 1 && !trackSet.has(course)) {
-          overlapEntries.push({
-            course,
-            overlapsWith: "Minor-Minor",
-            area: "Overlap Between Minors - NOT ALLOWED",
-            minor: minorList.join(", "),
-            countOverlapMinors: minorList.length,
-            minorsOverlapOnly: true
-          });
-        }
-      }
-
-      // Always check for required CS degree courses overlapping with minors (even if not in track)
-      const csDegreeRequired = ["MATH140", "MATH141", "STAT400"];
-      csDegreeRequired.forEach(course => {
-        if (minorCoursesMap[course] && !trackSet.has(course)) {
-          overlapEntries.push({
-            course,
-            overlapsWith: "Track (Required)",
-            area: "CS Degree Requirement",
-            minor: minorCoursesMap[course].join(", "),
-            countOverlapMinors: minorCoursesMap[course].length,
-            isInTrack: true
-          });
-        }
-      });
-
-      return overlapEntries;
-    }
-
-    // Count how many valid ULC courses are selected (exclude restricted ULCs)
-    function validateULC(selectedMinors, trackKey) {
-      const trackCourses = getTrackAllCourses(trackKey);
-      const minorCourses = getMinorCourses(selectedMinors);
-
-      // Combine all courses selected
-      const allCourses = [...new Set([...trackCourses, ...minorCourses])];
-
-      // Filter out restricted ULC courses
-      const validULCCourses = allCourses.filter(c => !isRestrictedULC(c));
-
-      // Filter restricted ULC courses present (for warnings)
-      const restrictedCoursesPresent = allCourses.filter(c => isRestrictedULC(c));
-
-      return {
-        validULCCourses,
-        restrictedCoursesPresent,
-        totalValid: validULCCourses.length,
-        totalRestricted: restrictedCoursesPresent.length
-      };
-    }
-
-    function getColorForOverlap(entry, totalOverlapCount) {
-      if (entry.minorsOverlapOnly) return "red";
-      if (totalOverlapCount > 2) return "red";
-      if (totalOverlapCount === 2) return "green";
-      if (totalOverlapCount === 1) return "yellow";
-      return "yellow";
-    }
-
-    document.getElementById("checkOverlapBtn").addEventListener("click", () => {
-      const trackKey = document.getElementById("trackSelect").value;
-      const checkedMinors = Array.from(document.querySelectorAll('input[name="minor"]:checked')).map(i => i.value);
-
-      if (!trackKey) {
-        alert("Please select a track.");
-        return;
-      }
-      if (checkedMinors.length === 0) {
-        alert("Please select at least one minor.");
-        return;
-      }
-
-      const overlaps = checkOverlaps(trackKey, checkedMinors);
-      const tbody = document.querySelector("#overlapTable tbody");
-      tbody.innerHTML = "";
-
-      if (overlaps.length === 0) {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="5" style="text-align:center; font-weight:bold;">No overlaps detected.</td>`;
-        tbody.appendChild(row);
-      } else {
-        const trackOverlapCount = overlaps.filter(e => e.isInTrack).length;
-        overlaps.forEach(entry => {
-          const tr = document.createElement("tr");
-          tr.className = getColorForOverlap(entry, trackOverlapCount);
-          let reasons = [];
-          if (entry.area === "CS Degree Requirement") reasons.push("CS requirement");
-          if (entry.area && (entry.area.toLowerCase().includes("required") || entry.area.toLowerCase().includes("core"))) reasons.push("track requirement");
-          if (entry.area && entry.area.toLowerCase().includes("elective")) reasons.push("elective");
-          if (entry.minor) reasons.push(`minor (${entry.minor})`);
-          if (entry.minorsOverlapOnly) reasons.push("multiple minors");
-
-          let statusMsg = "";
-          if (tr.className === "red") {
-            statusMsg = `❌ Not allowed — course is used in: ${[...new Set(reasons)].join(", ")}.`;
-          } else {
-            statusMsg = `✅ Allowed — within overlap limits.`;
-          }
-
-          tr.innerHTML = `
-            <td>${entry.course}</td>
-            <td>${entry.overlapsWith}</td>
-            <td class="track-area">${entry.area || ""}</td>
-            <td>${entry.minor || ""}</td>
-            <td class="status">${statusMsg}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      // ULC Validation Section
-      const ulcDiv = document.getElementById("ulcValidation");
-      const ulcResults = validateULC(checkedMinors, trackKey);
-
-      let ulcMsg = `Total valid ULC courses selected: <strong>${ulcResults.totalValid}</strong>.<br>`;
-
-      if (ulcResults.totalRestricted > 0) {
-        ulcMsg += `<span style="color:red;">⚠️ Restricted ULC courses detected: ${ulcResults.restrictedCoursesPresent.join(", ")}.</span><br>`;
-      } else {
-        ulcMsg += `<span style="color:green;">No restricted ULC courses detected.</span><br>`;
-      }
-
-      ulcMsg += `<em>Note: Restricted ULC courses do not count towards your Upper Level Concentration requirements.</em>`;
-
-      ulcDiv.innerHTML = ulcMsg;
-    });
-  </script>
-
+        console.log('Cybersecurity Track initialized:', cybersecurityTrack);
+    </script>
 </body>
 </html>
