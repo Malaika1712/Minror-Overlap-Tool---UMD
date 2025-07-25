@@ -2,36 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Track-Minor Overlap & ULC Checker</title>
+  <title>Track-Minor Overlap Checker</title>
   <style>
-    table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h2 {
+      color: #444;
+    }
+    select, input[type="checkbox"], button {
+      margin: 10px 0;
+      padding: 5px;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
     .red { background-color: #ffcccc; }
-    .yellow { background-color: #fffacc; }
-    .green { background-color: #ccffcc; }
+    .yellow { background-color: #ccffcc; }
+    .green { background-color: #fffacc; }
   </style>
 </head>
 <body>
 
-  <h2>Track Selection</h2>
+  <h2>Select Track</h2>
   <select id="trackSelect">
     <option value="">-- Select a Track --</option>
     <option value="general">General Track</option>
-    <option value="cybersecurity">Cybersecurity</option>
+    <option value="datascience">Data Science</option>
+    <option value="cyber">Cybersecurity</option>
     <option value="machinelearning">Machine Learning</option>
     <option value="quantum">Quantum</option>
-    <option value="datascience">Data Science</option>
   </select>
 
   <h2>Select Minors</h2>
-  <label><input type="checkbox" name="minor" value="math"> Math</label>
-  <label><input type="checkbox" name="minor" value="robotics"> Robotics</label>
-  <label><input type="checkbox" name="minor" value="statistics"> Statistics</label>
-  <label><input type="checkbox" name="minor" value="qse"> QSE</label>
-  <label><input type="checkbox" name="minor" value="computationalFinance"> Computational Finance</label>
-  <label><input type="checkbox" name="minor" value="businessAnalytics"> Business Analytics</label>
+  <div id="minorCheckboxes">
+    <label><input type="checkbox" name="minor" value="math"> Math</label>
+    <label><input type="checkbox" name="minor" value="robotics"> Robotics</label>
+    <label><input type="checkbox" name="minor" value="statistics"> Statistics</label>
+    <label><input type="checkbox" name="minor" value="qse"> QSE</label>
+    <label><input type="checkbox" name="minor" value="compfin"> Computational Finance</label>
+    <label><input type="checkbox" name="minor" value="busanalytics"> Business Analytics</label>
+  </div>
 
-  <br><br>
-  <button id="checkOverlapBtn">Check Overlap and ULC Validation</button>
+  <br><button id="checkOverlapBtn">Check Overlap</button>
+
+  <h2>Track Details</h2>
+  <div id="trackContent"><em>Please select a track above to view its course requirements...</em></div>
 
   <h2>Results</h2>
   <table id="overlapTable">
@@ -47,369 +74,82 @@
     <tbody></tbody>
   </table>
 
-  <div id="ulcValidation" style="margin-top:20px; font-weight:bold;"></div>
+  <h3 id="ulcSummary"></h3>
+  <h4 id="ulcRestrictedNote"></h4>
 
   <script>
-    // Track requirements (simplified example, replace with your official lists)
-    const trackRequirements = {
-      general: {
-        required: ["CMSC131", "CMSC132"],
-        areas: { Electives: ["CMSC216", "CMSC250"] }
-      },
-      cybersecurity: {
-        required: ["CMSC351", "CMSC330", "CMSC414"],
-        choose4from: ["CMSC421", "CMSC424", "CMSC427"]
-      },
-      machinelearning: {
-        required: ["CMSC320", "CMSC421", "CMSC422"],
-        chooseTwoFrom: ["CMSC426", "CMSC460", "AMSC460", "CMSC466", "AMSC466", "MATH401",
-          "CMSC470", "CMSC472", "CMSC473", "CMSC474", "CMSC476"]
-      },
-      quantum: {
-        required: ["CMSC457", "PHYS467"],
-        areas: {
-          Area1: ["CMSC411", "CMSC412", "CMSC414", "CMSC416", "CMSC417"],
-          Area2: ["CMSC420", "CMSC421", "CMSC422", "CMSC423", "CMSC424", "CMSC426", "CMSC427", "CMSC470", "CMSC471", "CMSC472"],
-          Area3: ["CMSC430", "CMSC433", "CMSC434", "CMSC435", "CMSC436", "CMSC471"],
-          Area4: ["CMSC451", "CMSC452", "CMSC454", "CMSC456", "CMSC457", "CMSC474", "MATH456"],
-          Area5: ["CMSC460", "CMSC466", "AMSC460", "AMSC466"]
-        },
-        electives: ["CMSC300", "CMSC400", "CMSC410"]
-      },
-      datascience: {
-        required: ["DATA110", "DATA120", "DATA200", "DATA250", "DATA320", "DATA350", "DATA400"],
-        chooseOneFrom1: ["DATA300", "DATA310"],
-        chooseOneFrom2: ["DATA330", "DATA340"],
-        chooseTwoFrom3: ["DATA360", "DATA370", "DATA380"]
-      }
-    };
+    document.getElementById("trackSelect").addEventListener("change", async function () {
+      const track = this.value;
+      const trackContentDiv = document.getElementById("trackContent");
 
-    // Minors (simplified, replace with your official minor lists)
-    const minors = {
-      math: [
-        { name: "Core", code: ["MATH140", "MATH141"] },
-        { name: "Electives", code: ["CMSC250"] }
-      ],
-      robotics: [
-        { name: "Core", code: ["ENME480", "ENAE450", "ENEE467", "CMSC477"] },
-        { name: "Math", code: ["MATH240", "MATH461"] }
-      ],
-      statistics: [
-        { name: "Core", code: ["MATH241", "MATH340"] },
-        { name: "Pairs", code: [["STAT400", "STAT401"], ["STAT410", "STAT420"], ["STAT410", "STAT401"]] },
-        { name: "Electives", code: ["STAT430", "STAT422", "STAT426", "STAT440", "STAT470", "MATH424"] }
-      ],
-      qse: [
-        { name: "Math", code: ["MATH240", "MATH461", "ENEE290", "PHYS274", "MATH243", "MATH341"] },
-        { name: "IntroQuantum", code: ["ENEE491", "PHYS401", "ENMA434", "PHYS360"] },
-        { name: "Core", code: ["PHYS467", "ENEE492", "ENMA436", "ENME434", "PHYS457", "CMSC457"] },
-        { name: "Lab", code: ["ENEE493", "CMSC437"] },
-        { name: "Elective", code: ["ENEE489C", "ENEE489W", "ENMA481"] }
-      ],
-      computationalFinance: [
-        { name: "Core", code: ["BUFN400", "CMSC320", "BUFN403"] },
-        { name: "Elective", code: ["BUFN401", "BUFN402", "CMSC421", "CMSC422", "CMSC470", "CMSC471", "CMSC472", "CMSC474"] }
-      ],
-      businessAnalytics: [
-        { name: "Core", code: ["BMGT402", "BMGT430", "BMGT431"] },
-        { name: "ElectivesA", code: ["BMGT302", "BMGT332", "BMGT385", "BMGT400", "BMGT401", "BMGT404"] },
-        { name: "ElectivesB", code: ["BMGT347", "BMGT394", "BMGT447", "BMGT484", "CMSC422", "ECON414", "ENCE402", "ENEE436", "INST414", "STAT430"] }
-      ]
-    };
-
-    // Restricted ULC courses as a Set for quick lookup
-    const restrictedULCCourses = new Set([
-      "AMSC460", "AMSC466",
-      "AOSC447",
-      "AREC380",
-      "BIOE442",
-      "BSCI411",
-      "BMGT300", "BMGT301", "BMGT301F", "BMGT302", "BMGT302F", "BMGT400", "BMGT402", "BMGT403", "BMGT404", "BMGT408E", "BMGT408C", "BMGT431", "BMGT408V",
-      "CPSP", // All CPSP Scholars disallowed
-      "DATA320", "DATA400",
-      "ECON414", "ECON433",
-      "ENEE350", "ENEE426", "ENEE436", "ENEE446", "ENEE447", "ENEE457",
-      "ENGL381",
-      "GEOG376", "GEOG371", "GEOG461", "GEOG476", "GEOG470", "GEOG498I",
-      "HONR", "HNUH",
-      "IMDM327", "IMDM390", "IMDM498I",
-      "INST", // All INST except exceptions not allowed
-      "MATH456", "MATH461", "MATH475",
-      "PHIL408F",
-      "PHPE408J",
-      "PHYS457", "PHYS474", "PHYS476", "PHYS486",
-      "PSYC417",
-      "ENAE450", "ENEE467", "ENEE408I", "CMSC477",
-      "STAT426", "STAT464"
-      // Add others as needed. For partial course numbers, more sophisticated matching is needed.
-    ]);
-
-    // Helper to check if a course is restricted ULC
-    function isRestrictedULC(course) {
-      // Exact match or prefix match for categories like CPSP, HONR, INST, etc.
-      if (restrictedULCCourses.has(course)) return true;
-
-      // Handle prefix cases:
-      const prefixes = ["CPSP", "HONR", "HNUH", "INST"];
-      for (const prefix of prefixes) {
-        if (course.startsWith(prefix)) return true;
+      if (!track) {
+        trackContentDiv.innerHTML = "<em>Please select a track above to view its course requirements...</em>";
+        return;
       }
 
-      // Also handle BMGT partial course codes explicitly
-      if (course.startsWith("BMGT")) {
-        const numberPart = course.slice(4);
-        // For example, BMGT300, BMGT301, BMGT301F, BMGT302, BMGT302F, BMGT400, BMGT402, BMGT403, BMGT404, BMGT408E, BMGT408C, BMGT431, BMGT408V
-        // Already included explicitly, so safe to just check for presence in set
-        return restrictedULCCourses.has(course);
-      }
-
-      return false;
-    }
-
-    // Helper: flatten minor courses to single array of courses
-    function getMinorCourses(selectedMinors) {
-      let minorCourses = [];
-      selectedMinors.forEach(minorKey => {
-        if (!minors[minorKey]) return;
-        minors[minorKey].forEach(group => {
-          if (Array.isArray(group.code[0])) {
-            // Group of pairs or arrays, flatten all
-            minorCourses = minorCourses.concat(group.code.flat());
-          } else {
-            minorCourses = minorCourses.concat(group.code);
-          }
-        });
-      });
-      // Unique
-      return [...new Set(minorCourses)];
-    }
-
-    function getTrackAllCourses(trackKey) {
-      let courses = [];
-      const track = trackRequirements[trackKey];
-      if (!track) return [];
-
-      if (track.required) courses = courses.concat(track.required);
-
-      if (track.areas) {
-        Object.values(track.areas).forEach(areaList => {
-          courses = courses.concat(areaList);
-        });
-      }
-      if (track.choose4from) courses = courses.concat(track.choose4from);
-      if (track.chooseOneFrom1) courses = courses.concat(track.chooseOneFrom1);
-      if (track.chooseOneFrom2) courses = courses.concat(track.chooseOneFrom2);
-      if (track.chooseTwoFrom3) courses = courses.concat(track.chooseTwoFrom3);
-      if (track.chooseTwoFrom) courses = courses.concat(track.chooseTwoFrom);
-
-      return [...new Set(courses)];
-    }
-
-    function getCourseArea(trackKey, courseCode) {
-      const track = trackRequirements[trackKey];
-      if (!track) return "";
-
-      if (track.required && track.required.includes(courseCode)) return "Required";
-
-      if (track.areas) {
-        for (const [area, courseList] of Object.entries(track.areas)) {
-          if (courseList.includes(courseCode)) {
-            if (area.toLowerCase() === "electives") return "Elective";
-            return area.toUpperCase();
-          }
-        }
-      }
-
-      // Specific for tracks with other groupings
-      if (trackKey === "cybersecurity") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.choose4from && track.choose4from.includes(courseCode)) return "Choose 4 From";
-      }
-      if (trackKey === "datascience") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.chooseOneFrom1 && track.chooseOneFrom1.includes(courseCode)) return "Choose One From Group 1";
-        if (track.chooseOneFrom2 && track.chooseOneFrom2.includes(courseCode)) return "Choose One From Group 2";
-        if (track.chooseTwoFrom3 && track.chooseTwoFrom3.includes(courseCode)) return "Choose Two From Group 3";
-      }
-      if (trackKey === "machinelearning") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.chooseTwoFrom && track.chooseTwoFrom.includes(courseCode)) return "Choose Two From";
-      }
-      if (trackKey === "quantum") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.areas) {
-          for (const [area, courseList] of Object.entries(track.areas)) {
-            if (courseList.includes(courseCode)) {
-              if (area.toLowerCase() === "electives") return "Elective";
-              return area.toUpperCase();
-            }
-          }
-        }
-      }
-      return "";
-    }
-
-    function checkOverlaps(trackKey, selectedMinors) {
-      const trackCourses = getTrackAllCourses(trackKey);
-      const trackSet = new Set(trackCourses);
-      const requiredSet = new Set(trackRequirements[trackKey]?.required || []);
-      const electiveSet = new Set([...trackCourses].filter(c => !requiredSet.has(c)));
-
-      let overlapEntries = [];
-      let minorCoursesMap = {};
-
-      // Map courses from minors to the minors they belong to
-      selectedMinors.forEach(minorKey => {
-        if (!minors[minorKey]) return;
-        minors[minorKey].forEach(group => {
-          let codes = Array.isArray(group.code[0]) ? group.code.flat() : group.code;
-          codes.forEach(course => {
-            if (!minorCoursesMap[course]) minorCoursesMap[course] = [];
-            minorCoursesMap[course].push(minorKey);
-          });
-        });
-      });
-
-      // Overlaps between track and minors
-      for (const [course, minorList] of Object.entries(minorCoursesMap)) {
-        if (trackSet.has(course)) {
-          overlapEntries.push({
-            course,
-            overlapsWith: "Track",
-            area: getCourseArea(trackKey, course),
-            minor: minorList.join(", "),
-            countOverlapMinors: minorList.length,
-            isInTrack: true,
-            isElective: electiveSet.has(course)
-          });
-        }
-        // Overlaps between minors - not allowed
-        if (minorList.length > 1 && !trackSet.has(course)) {
-          overlapEntries.push({
-            course,
-            overlapsWith: "Minor-Minor",
-            area: "Overlap Between Minors - NOT ALLOWED",
-            minor: minorList.join(", "),
-            countOverlapMinors: minorList.length,
-            minorsOverlapOnly: true
-          });
-        }
-      }
-
-      // Always check for required CS degree courses overlapping with minors (even if not in track)
-      const csDegreeRequired = ["MATH140", "MATH141", "STAT400"];
-      csDegreeRequired.forEach(course => {
-        if (minorCoursesMap[course] && !trackSet.has(course)) {
-          overlapEntries.push({
-            course,
-            overlapsWith: "Track (Required)",
-            area: "CS Degree Requirement",
-            minor: minorCoursesMap[course].join(", "),
-            countOverlapMinors: minorCoursesMap[course].length,
-            isInTrack: true
-          });
-        }
-      });
-
-      return overlapEntries;
-    }
-
-    // Count how many valid ULC courses are selected (exclude restricted ULCs)
-    function validateULC(selectedMinors, trackKey) {
-      const trackCourses = getTrackAllCourses(trackKey);
-      const minorCourses = getMinorCourses(selectedMinors);
-
-      // Combine all courses selected
-      const allCourses = [...new Set([...trackCourses, ...minorCourses])];
-
-      // Filter out restricted ULC courses
-      const validULCCourses = allCourses.filter(c => !isRestrictedULC(c));
-
-      // Filter restricted ULC courses present (for warnings)
-      const restrictedCoursesPresent = allCourses.filter(c => isRestrictedULC(c));
-
-      return {
-        validULCCourses,
-        restrictedCoursesPresent,
-        totalValid: validULCCourses.length,
-        totalRestricted: restrictedCoursesPresent.length
+      const trackFileMap = {
+        general: "General Track.html",
+        datascience: "Data Science Track.html",
+        cyber: "Cybersecurity Track.html",
+        machinelearning: "ML Track.html",
+        quantum: "Quantum Track.html"
       };
-    }
 
-    function getColorForOverlap(entry, totalOverlapCount) {
-      if (entry.minorsOverlapOnly) return "red";
-      if (totalOverlapCount > 2) return "red";
-      if (totalOverlapCount === 2) return "green";
-      if (totalOverlapCount === 1) return "yellow";
-      return "yellow";
-    }
+      const fileName = trackFileMap[track];
+      if (!fileName) {
+        trackContentDiv.innerHTML = "<em>This track is not yet available.</em>";
+        return;
+      }
+
+      try {
+        const response = await fetch(fileName);
+        if (!response.ok) throw new Error("File not found.");
+        const html = await response.text();
+        trackContentDiv.innerHTML = html;
+      } catch (err) {
+        trackContentDiv.innerHTML = `<span style="color:red;">Failed to load track content: ${err.message}</span>`;
+      }
+    });
 
     document.getElementById("checkOverlapBtn").addEventListener("click", () => {
-      const trackKey = document.getElementById("trackSelect").value;
-      const checkedMinors = Array.from(document.querySelectorAll('input[name="minor"]:checked')).map(i => i.value);
-
-      if (!trackKey) {
-        alert("Please select a track.");
-        return;
-      }
-      if (checkedMinors.length === 0) {
-        alert("Please select at least one minor.");
-        return;
-      }
-
-      const overlaps = checkOverlaps(trackKey, checkedMinors);
+      const track = document.getElementById("trackSelect").value;
+      const minors = Array.from(document.querySelectorAll("input[name='minor']:checked")).map(cb => cb.value);
       const tbody = document.querySelector("#overlapTable tbody");
       tbody.innerHTML = "";
 
-      if (overlaps.length === 0) {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="5" style="text-align:center; font-weight:bold;">No overlaps detected.</td>`;
-        tbody.appendChild(row);
-      } else {
-        const trackOverlapCount = overlaps.filter(e => e.isInTrack).length;
-        overlaps.forEach(entry => {
-          const tr = document.createElement("tr");
-          tr.className = getColorForOverlap(entry, trackOverlapCount);
-          let reasons = [];
-          if (entry.area === "CS Degree Requirement") reasons.push("CS requirement");
-          if (entry.area && (entry.area.toLowerCase().includes("required") || entry.area.toLowerCase().includes("core"))) reasons.push("track requirement");
-          if (entry.area && entry.area.toLowerCase().includes("elective")) reasons.push("elective");
-          if (entry.minor) reasons.push(`minor (${entry.minor})`);
-          if (entry.minorsOverlapOnly) reasons.push("multiple minors");
-
-          let statusMsg = "";
-          if (tr.className === "red") {
-            statusMsg = `❌ Not allowed — course is used in: ${[...new Set(reasons)].join(", ")}.`;
-          } else {
-            statusMsg = `✅ Allowed — within overlap limits.`;
-          }
-
-          tr.innerHTML = `
-            <td>${entry.course}</td>
-            <td>${entry.overlapsWith}</td>
-            <td class="track-area">${entry.area || ""}</td>
-            <td>${entry.minor || ""}</td>
-            <td class="status">${statusMsg}</td>
-          `;
-          tbody.appendChild(tr);
-        });
+      if (!track) {
+        tbody.innerHTML = '<tr><td colspan="5">Please select a track.</td></tr>';
+        return;
       }
 
-      // ULC Validation Section
-      const ulcDiv = document.getElementById("ulcValidation");
-      const ulcResults = validateULC(checkedMinors, trackKey);
-
-      let ulcMsg = `Total valid ULC courses selected: <strong>${ulcResults.totalValid}</strong>.<br>`;
-
-      if (ulcResults.totalRestricted > 0) {
-        ulcMsg += `<span style="color:red;">⚠️ Restricted ULC courses detected: ${ulcResults.restrictedCoursesPresent.join(", ")}.</span><br>`;
-      } else {
-        ulcMsg += `<span style="color:green;">No restricted ULC courses detected.</span><br>`;
+      if (minors.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">Please select at least one minor.</td></tr>';
+        return;
       }
 
-      ulcMsg += `<em>Note: Restricted ULC courses do not count towards your Upper Level Concentration requirements.</em>`;
+      // Placeholder for real overlap function — replace with your actual function
+      const overlaps = window.getOverlapResults ? window.getOverlapResults(track, minors) : [];
 
-      ulcDiv.innerHTML = ulcMsg;
+      if (!overlaps.length) {
+        tbody.innerHTML = '<tr><td colspan="5">No overlaps detected.</td></tr>';
+        return;
+      }
+
+      overlaps.forEach(entry => {
+        const tr = document.createElement("tr");
+        tr.className = entry.color || "yellow";
+        tr.innerHTML = `
+          <td>${entry.course}</td>
+          <td>${entry.overlapsWith}</td>
+          <td>${entry.area}</td>
+          <td>${entry.minor}</td>
+          <td>${entry.status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("ulcSummary").textContent = window.getULCSummary ? window.getULCSummary(track, minors) : "";
+      document.getElementById("ulcRestrictedNote").textContent = window.getULCRestrictionNote ? window.getULCRestrictionNote(track, minors) : "";
     });
   </script>
 
