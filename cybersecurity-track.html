@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Track Requirements</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #e21833;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 2rem;
+        }
+
+        .requirement-group {
+            margin-bottom: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .requirement-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .requirement-header:hover {
+            background: #e9ecef;
+        }
+
+        .requirement-header h3 {
+            color: #e21833;
+            margin: 0;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .requirement-content {
+            padding: 1rem;
+            display: none;
+        }
+
+        .requirement-content.expanded {
+            display: block;
+        }
+
+        .sub-requirement {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #e21833;
+        }
+
+        .sub-requirement h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .needs-info {
+            background: #fff3cd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            font-weight: bold;
+        }
+
+        .course-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .course-tag {
+            background: #e21833;
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .notes {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .notes h4 {
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cybersecurity Track Requirements</h2>
+        
+        <!-- Upper Level Concentration -->
+        <div class="requirement-group">
+            <div class="requirement-header" onclick="toggleRequirement('ulc')">
+                <h3>Upper Level Concentration</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge">Unfulfilled</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="requirement-content" id="ulc-content">
+                <div class="sub-requirement">
+                    <h4>Complete 12 credits at the 300-400 level in an area outside of CMSC</h4>
+                    <div class="needs-info">
+                        NEEDS: 12.0 CREDITS | 1.700 GPA
+                    </div>
+                    <p><strong>Note:</strong> Chosen in consultation with your CMSC advisor. No course cross-listed with CMSC may be used.</p>
+                    <p><em>The Upper Level Concentration area does not auto populate. Your assigned advisor will need to manually move your ULC-eligible courses to this area during degree audit checks.</em></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Level Requirements -->
+        <div class="requirement-group">
+            <div class="requirement-header" onclick="toggleRequirement('lower')">
+                <h3>Lower Level Requirements</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge">Unfulfilled</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="requirement-content" id="lower-content">
+                <div class="sub-requirement">
+                    <h4>Math Requirement</h4>
+                    <div class="needs-info">
+                        NEEDS: 2 COURSES
+                    </div>
+                    <p>SELECT FROM:</p>
+                    <div class="course-list">
+                        <span class="course-tag">MATH 140</span>
+                        <span class="course-tag">MATH 141</span>
+                    </div>
+                </div>
+
+                <div class="sub-requirement">
+                    <h4>Computer Science Courses</h4>
+                    <div class="needs-info">
+                        NEEDS: 6 COURSES
+                    </div>
+                    <p>SELECT FROM:</p>
+                    <div class="course-list">
+                        <span class="course-tag">CMSC 131 OR 133</span>
+                        <span class="course-tag">CMSC 132</span>
+                        <span class="course-tag">CMSC 216</span>
+                        <span class="course-tag">CMSC 250</span>
+                        <span class="course-tag">CMSC 330</span>
+                        <span class="course-tag">CMSC 351</span>
+                    </div>
+                </div>
+
+                <div class="sub-requirement">
+                    <h4>STAT4XX with a MATH141 prerequisite</h4>
+                    <div class="needs-info">
+                        NEEDS: 1 COURSE
+                    </div>
+                    <p>SELECT FROM:</p>
+                    <div class="course-list">
+                        <span class="course-tag">STAT 400</span>
+                        <span class="course-tag">STAT 401</span>
+                        <span class="course-tag">STAT 405</span>
+                        <span class="course-tag">STAT 410</span>
+                        <span class="course-tag">STAT 411</span>
+                        <span class="course-tag">STAT 420</span>
+                        <span class="course-tag">STAT 430</span>
+                        <span class="course-tag">STAT 440</span>
+                        <span class="course-tag">STAT 450</span>
+                        <span class="course-tag">STAT 470</span>
+                    </div>
+                </div>
+
+                <div class="sub-requirement">
+                    <h4>MATH Requirements</h4>
+                    <div class="needs-info">
+                        NEEDS: 1 COURSE
+                    </div>
+                    <p>These courses must have prerequisite of MATH141 or higher; cannot be cross-listed with CMSC.</p>
+                    <p>SELECT FROM:</p>
+                    <div class="course-list">
+                        <span class="course-tag">MATH 240</span>
+                        <span class="course-tag">MATH 241</span>
+                        <span class="course-tag">MATH 246</span>
+                        <span class="course-tag">MATH 310</span>
+                        <span class="course-tag">MATH 340</span>
+                        <span class="course-tag">MATH 341</span>
+                        <span class="course-tag">STAT 401</span>
+                        <span class="course-tag">STAT 405</span>
+                        <span class="course-tag">STAT 410</span>
+                        <span class="course-tag">STAT 411</span>
+                        <span class="course-tag">STAT 420</span>
+                        <span class="course-tag">STAT 430</span>
+                        <span class="course-tag">STAT 440</span>
+                        <span class="course-tag">STAT 450</span>
+                        <span class="course-tag">STAT 470</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cybersecurity Specialization Requirements -->
+        <div class="requirement-group">
+            <div class="requirement-header" onclick="toggleRequirement('cyber-spec')">
+                <h3>Cybersecurity Specialization Requirements</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge">Unfulfilled</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="requirement-content" id="cyber-spec-content">
+                <div class="sub-requirement">
+                    <h4>Complete CMSC414 & CMSC456</h4>
+                    <div class="needs-info">
+                        NEEDS: 2 COURSES
+                    </div>
+                    <p>SELECT FROM:</p>
+                    <div class="course-list">
+                        <span class="course-tag">CMSC 414</span>
+                        <span class="course-tag">CMSC 456</span>
+                    </div>
+                </div>
+
+                <div class="sub-requirement">
+                    <h4>Complete four courses from below</h4>
+                    <div class="needs-info">
+                        NEEDS: 4 COURSES
+                    </div>
+                    <p>SELECT FROM:</p>
+                    <div class="course-list">
+                        <span class="course-tag">CMSC 411</span>
+                        <span class="course-tag">CMSC 412</span>
+                        <span class="course-tag">CMSC 417</span>
+                        <span class="course-tag">CMSC 430</span>
+                        <span class="course-tag">CMSC 433</span>
+                        <span class="course-tag">CMSC 451</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CMSC Electives -->
+        <div class="requirement-group">
+            <div class="requirement-header" onclick="toggleRequirement('cmsc-electives')">
+                <h3>CMSC Electives</h3>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span class="status-badge">Unfulfilled</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="requirement-content" id="cmsc-electives-content">
+                <div class="sub-requirement">
+                    <h4>3 Credits at the CMSC300/400 Level</h4>
+                    <div class="needs-info">
+                        NEEDS: 3.0 CREDITS
+                    </div>
+                    <p><strong>Not eligible:</strong> CMSC330, CMSC351</p>
+                    <p>Any 300-400 level CMSC course except the excluded ones above.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes">
+            <h4>Important Notes for Cybersecurity Track:</h4>
+            <ul>
+                <li>Upper Level Concentration must be chosen in consultation with your CMSC advisor</li>
+                <li>No cross-listed CMSC courses can be used for the ULC requirement</li>
+                <li>MATH requirements must have MATH141 or higher as prerequisite</li>
+                <li>Your advisor will manually move ULC-eligible courses during degree audit checks</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Toggle requirement sections
+        function toggleRequirement(sectionId) {
+            const content = document.getElementById(sectionId + '-content');
+            const icon = content.previousElementSibling.querySelector('.expand-icon');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                icon.classList.remove('rotated');
+            } else {
+                content.classList.add('expanded');
+                icon.classList.add('rotated');
+            }
+        }
+    </script>
+</body>
+</html>
