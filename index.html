@@ -306,7 +306,8 @@
             area: "CS Degree Requirement",
             minor: minorCoursesMap[course].join(", "),
             countOverlapMinors: minorCoursesMap[course].length,
-            isInTrack: true
+            isInTrack: true,
+            isCSDegreeRequirement: true
           });
         }
       });
@@ -345,6 +346,7 @@
 
     function getColorForOverlap(entry, totalOverlapCount) {
       if (entry.minorsOverlapOnly) return "red";
+      if (entry.isCSDegreeRequirement) return "green"; // CS degree requirements are always allowed
       if (totalOverlapCount > 2) return "red";
       if (totalOverlapCount === 2) return "yellow";
       if (totalOverlapCount === 1) return "green";
@@ -373,7 +375,7 @@
         row.innerHTML = `<td colspan="5" style="text-align:center; font-weight:bold;">No overlaps detected.</td>`;
         tbody.appendChild(row);
       } else {
-        const trackOverlapCount = overlaps.filter(e => e.isInTrack).length;
+        const trackOverlapCount = overlaps.filter(e => e.isInTrack && !e.isCSDegreeRequirement).length;
         overlaps.forEach(entry => {
           const tr = document.createElement("tr");
           tr.className = getColorForOverlap(entry, trackOverlapCount);
