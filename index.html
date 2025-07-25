@@ -61,9 +61,38 @@
         choose4from: ["CMSC421", "CMSC424", "CMSC427"]
       },
       machinelearning: {
+        // Lower Level Requirements
+        lowerLevelMath: ["MATH140", "MATH141"],
+        lowerLevelCS: ["CMSC131", "CMSC133", "CMSC132", "CMSC216", "CMSC250", "CMSC330", "CMSC351"],
+        statisticsReq: ["STAT400", "STAT401", "STAT405", "STAT410", "STAT411", "STAT420", "STAT430", "STAT440", "STAT450", "STAT470"],
+        additionalMath: ["MATH240", "MATH341", "MATH461"],
+        
+        // ML Specialization Requirements
         required: ["CMSC320", "CMSC421", "CMSC422"],
         chooseTwoFrom: ["CMSC426", "CMSC460", "AMSC460", "CMSC466", "AMSC466", "MATH401",
-          "CMSC470", "CMSC472", "CMSC473", "CMSC474", "CMSC476"]
+          "CMSC470", "CMSC472", "CMSC473", "CMSC474", "CMSC476"],
+        
+        // Upper Level Area Requirements (must satisfy at least 3 areas)
+        areas: {
+          Systems: ["CMSC411", "CMSC412", "CMSC414", "CMSC416", "CMSC417"],
+          InformationProcessing: ["CMSC420", "CMSC421", "CMSC422", "CMSC423", "CMSC424", "CMSC426", "CMSC427", "CMSC470", "CMSC471", "CMSC472"],
+          SoftwareEngineering: ["CMSC430", "CMSC433", "CMSC434", "CMSC435", "CMSC436", "CMSC471"],
+          Theory: ["CMSC451", "CMSC452", "CMSC454", "CMSC456", "MATH456", "CMSC457", "CMSC474"],
+          NumericalAnalysis: ["CMSC460", "AMSC460", "CMSC466", "AMSC466"]
+        },
+        
+        // ML General Electives (6 credits at 300/400 level, excluding specific courses)
+        mlElectives: {
+          excluded: ["CMSC320", "CMSC330", "CMSC351", "CMSC421", "CMSC422"],
+          creditRequirement: 6
+        },
+        
+        // Upper Level Concentration requirement
+        ulcRequirement: {
+          credits: 12,
+          gpaMinimum: 1.7,
+          mustBeOutsideCMSC: true
+        }
       },
       quantum: {
         required: ["CMSC457", "PHYS467"],
@@ -201,6 +230,12 @@
       if (track.chooseOneFrom2) courses = courses.concat(track.chooseOneFrom2);
       if (track.chooseTwoFrom3) courses = courses.concat(track.chooseTwoFrom3);
       if (track.chooseTwoFrom) courses = courses.concat(track.chooseTwoFrom);
+      
+      // Machine Learning specific course categories
+      if (track.lowerLevelMath) courses = courses.concat(track.lowerLevelMath);
+      if (track.lowerLevelCS) courses = courses.concat(track.lowerLevelCS);
+      if (track.statisticsReq) courses = courses.concat(track.statisticsReq);
+      if (track.additionalMath) courses = courses.concat(track.additionalMath);
 
       return [...new Set(courses)];
     }
@@ -232,8 +267,29 @@
         if (track.chooseTwoFrom3 && track.chooseTwoFrom3.includes(courseCode)) return "Choose Two From Group 3";
       }
       if (trackKey === "machinelearning") {
-        if (track.required.includes(courseCode)) return "Required";
-        if (track.chooseTwoFrom && track.chooseTwoFrom.includes(courseCode)) return "Choose Two From";
+        if (track.lowerLevelMath && track.lowerLevelMath.includes(courseCode)) return "Lower Level Math";
+        if (track.lowerLevelCS && track.lowerLevelCS.includes(courseCode)) return "Lower Level CS";
+        if (track.statisticsReq && track.statisticsReq.includes(courseCode)) return "Statistics Requirement";
+        if (track.additionalMath && track.additionalMath.includes(courseCode)) return "Additional Math";
+        if (track.required && track.required.includes(courseCode)) return "ML Core Required";
+        if (track.chooseTwoFrom && track.chooseTwoFrom.includes(courseCode)) return "ML Elective Group";
+        
+        // Check area requirements
+        if (track.areas) {
+          for (const [area, courseList] of Object.entries(track.areas)) {
+            if (courseList.includes(courseCode)) {
+              return `Area: ${area}`;
+            }
+          }
+        }
+        
+        // Check if it's a valid ML elective (300/400 level CMSC, not excluded)
+        if (courseCode.startsWith("CMSC") && 
+            parseInt(courseCode.slice(4)) >= 300 && 
+            parseInt(courseCode.slice(4)) <= 499 &&
+            !track.mlElectives.excluded.includes(courseCode)) {
+          return "ML General Elective";
+        }
       }
       if (trackKey === "quantum") {
         if (track.required.includes(courseCode)) return "Required";
