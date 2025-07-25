@@ -328,20 +328,27 @@
       // Filter restricted ULC courses present (for warnings)
       const restrictedCoursesPresent = allCourses.filter(c => isRestrictedULC(c));
 
+      // Find ULC courses that overlap between track and minors
+      const trackSet = new Set(trackCourses);
+      const minorSet = new Set(minorCourses);
+      const overlappingULCCourses = validULCCourses.filter(c => trackSet.has(c) && minorSet.has(c));
+
       return {
         validULCCourses,
         restrictedCoursesPresent,
+        overlappingULCCourses,
         totalValid: validULCCourses.length,
-        totalRestricted: restrictedCoursesPresent.length
+        totalRestricted: restrictedCoursesPresent.length,
+        totalOverlapping: overlappingULCCourses.length
       };
     }
 
     function getColorForOverlap(entry, totalOverlapCount) {
       if (entry.minorsOverlapOnly) return "red";
       if (totalOverlapCount > 2) return "red";
-      if (totalOverlapCount === 2) return "green";
-      if (totalOverlapCount === 1) return "yellow";
-      return "yellow";
+      if (totalOverlapCount === 2) return "yellow";
+      if (totalOverlapCount === 1) return "green";
+      return "green";
     }
 
     document.getElementById("checkOverlapBtn").addEventListener("click", () => {
@@ -400,6 +407,10 @@
       const ulcResults = validateULC(checkedMinors, trackKey);
 
       let ulcMsg = `Total valid ULC courses selected: <strong>${ulcResults.totalValid}</strong>.<br>`;
+
+      if (ulcResults.totalOverlapping > 0) {
+        ulcMsg += `<span style="color:blue;">📋 ULC courses overlapping between track and minor(s): ${ulcResults.overlappingULCCourses.join(", ")} (${ulcResults.totalOverlapping} course${ulcResults.totalOverlapping > 1 ? 's' : ''}).</span><br>`;
+      }
 
       if (ulcResults.totalRestricted > 0) {
         ulcMsg += `<span style="color:red;">⚠️ Restricted ULC courses detected: ${ulcResults.restrictedCoursesPresent.join(", ")}.</span><br>`;
